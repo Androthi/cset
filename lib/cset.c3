@@ -97,7 +97,7 @@ macro CSet make_ascii_cset ($data) @const
 	$endforeach
 	return CSet{
 		.index = 0,
-		.data = { $low, $high, 0, 0 }
+		.data = { $low, 0, 0, 0 }
 	};
 }
 
