@@ -89,6 +89,7 @@ macro CSet make_ascii_cset ($data) @const
 	uint128 $low;
 	$foreach ($x : $data)
 		$if $x > 127:
+			$x -= 128;
 			$high |= 1u128 << $x;
 		$else
 			$low |= 1u128 << $x;
@@ -121,7 +122,7 @@ Checks if an ascii char is in the character set.
 *>
 fn bool CSet.char_is_in_set (&self, char c)
 {
-	if (c > 127) return self.data[1] & ( 1u128 << c ) != 0;
+	if (c > 127) return self.data[1] & ( 1u128 << (c-128) ) != 0;
 	return self.data[0] & ( 1u128 << c ) != 0;
 }
 

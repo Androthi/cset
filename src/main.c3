@@ -17,6 +17,9 @@ fn int main(String[] args)
 			cset::UC_ALPHA.char_is_in_set (c)
 		);
 	}
+
+	// test a high order ascii.
+	io::printn (cset::ALPHA.char_is_in_set( 248 ));
 	
 	io::printn ("GREEK cset ");
 	io::printn ( GREEK_ALPHA);
