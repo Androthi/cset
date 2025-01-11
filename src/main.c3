@@ -6,6 +6,8 @@ import utf_utils;
 
 const CSet GREEK_ALPHA = cset::make_unicode_cset ('Ͱ', "θωερτψυιοπ");
 
+const CSet SYMB = cset::make_unicode_cset( 0, "\xD0\xD8"); // for ascii higher order, use the make_unicode_cset
+
 fn int main(String[] args)
 {
 
@@ -19,7 +21,9 @@ fn int main(String[] args)
 	}
 
 	// test a high order ascii.
-	io::printn (cset::ALPHA.char_is_in_set( 248 ));
+	io::printn ("\xD0\xD8");
+	io::printn (SYMB.char_is_in_set('Ð')); // true
+	io::printn (SYMB.char_is_in_set('Å')); // false
 	
 	io::printn ("GREEK cset ");
 	io::printn ( GREEK_ALPHA);
