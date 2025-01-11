@@ -15,11 +15,11 @@ print out, copy and paste the result into source code.
 
 Some Ascii character sets are included by defualt.
 
-const CSet LC_ALPHA = { .index = 0, .data = {10633823807823001954701781295154855936, 0, 0, 0} };
-const CSet UC_ALPHA = { .index = 0, .data = {2475880041677272402379145216, 0, 0, 0} };
-const CSet ALPHA = { .index = 0, .data = {10633823810298881996379053697534001152, 0, 0, 0} };
-const CSet NUMERIC = { .index = 0, .data = {287948901175001088, 0, 0, 0} };
-const CSet ALPHA_NUMERIC = { .index = 0, .data = {10633823810298881996667002598709002240, 0, 0, 0} };
+const CSet LC_ALPHA = { .index = 0, .data = {10633823807823001954701781295154855936, 0, 0, 0} };  
+const CSet UC_ALPHA = { .index = 0, .data = {2475880041677272402379145216, 0, 0, 0} };  
+const CSet ALPHA = { .index = 0, .data = {10633823810298881996379053697534001152, 0, 0, 0} };  
+const CSet NUMERIC = { .index = 0, .data = {287948901175001088, 0, 0, 0} };  
+const CSet ALPHA_NUMERIC = { .index = 0, .data = {10633823810298881996667002598709002240, 0, 0, 0} };  
 
 
 
