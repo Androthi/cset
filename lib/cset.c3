@@ -1,77 +1,3 @@
-module utf_utils;
-
-<*
-Support compile time macro.
-@return `the length in bytes for a utf8 codepoint`
-*>
-macro int get_utf32_codepoint_length(char $c) @const
-{
-	int $len;
-	$switch
-		$case !($c & 0x80):           $len = 1;
-		$case ($c & 0xE0) == 0xC0:    $len = 2;
-		$case ($c & 0xF0) == 0xE0:    $len = 3;
-		$case ($c & 0xF8) == 0xF0:    $len = 4;
-		$default:                     $len = -1;
-	$endswitch
-	return $len;
-}
-
-<*
-Support compile time macro.
-@return `The length of a utf8 string in utf32`
-*>
-macro usz get_utf32_len_from_utf8(String $source) @const
-{
-	usz $len = 0;
-	$for (var $i=0; $i < $source.len;)
-		var $curlen = get_utf32_codepoint_length ($source[$i]);
-		$i += $curlen;
-		$len++;
-	$endfor
-	return $len;
-}
-
-<*
-Compile time macro.
-@param $source `A utf8 string to convert into a Char32[] array`
-@return `A Char32[] array`
-*>
-macro conv_utf8_to_char32($source) @const
-{
-	Char32 $codepoint;
-	var $max = $source.len;
-
-	var $char32len = get_utf32_len_from_utf8 ($source);
-	var $chars = {};
-
-	$for (var $inx = 0; $inx < $max; )
-		var $c = $source[$inx];
-		var $len = get_utf32_codepoint_length($c);
-		$switch ($len)
-			$case 1: $codepoint = $c;
-			$case 2: $codepoint = $c & 0x1F;
-			$case 3: $codepoint = $c & 0x0F;
-			$case 4: $codepoint = $c & 0x07;
-			$default:
-				$error("Error, invalid utf8 character in string");
-				return;
-		$endswitch
-
-		$for (var $x = 1; $x < $len; ++$x)
-			$c = $source[$inx + $x];
-			$if ( ($c & 0xC0) != 0x80):
-				$error("Error, invalid utf8 character in string");
-				return;
-			$endif
-			$codepoint = ($codepoint << 6) | ($c & 0x3F);
-		$endfor
-
-		$chars = $chars +++ $codepoint;
-		$inx += $len;
-	$endfor
-	return $chars;
-}
 
 <*
 A character set module
@@ -84,7 +10,6 @@ to print a character set which can then be hard coded as a const.
 
 The existinc character set constants in this library were created
 with that method.
-
 *>
 module cset;
 import utf_utils;
@@ -100,11 +25,13 @@ const MAX_SIZE = 512;
 const BITS = uint128.sizeof * 8;
 
 // default ascii csets
-const CSet LC_ALPHA = { .index = 0, .data = {10633823807823001954701781295154855936, 0, 0, 0} };
-const CSet UC_ALPHA = { .index = 0, .data = {2475880041677272402379145216, 0, 0, 0} };
-const CSet ALPHA = { .index = 0, .data = {10633823810298881996379053697534001152, 0, 0, 0} };
-const CSet NUMERIC = { .index = 0, .data = {287948901175001088, 0, 0, 0} };
-const CSet ALPHA_NUMERIC = { .index = 0, .data = {10633823810298881996667002598709002240, 0, 0, 0} };
+const CSet LC_ALPHA =		{ .index = 0, .data = {10633823807823001954701781295154855936, 0, 0, 0}	};
+const CSet UC_ALPHA =		{ .index = 0, .data = {2475880041677272402379145216, 0, 0, 0}			};
+const CSet ALPHA =			{ .index = 0, .data = {10633823810298881996379053697534001152, 0, 0, 0}	};
+const CSet NUMERIC =		{ .index = 0, .data = {287948901175001088, 0, 0, 0}						};
+const CSet ALPHA_NUMERIC =	{ .index = 0, .data = {10633823810298881996667002598709002240, 0, 0, 0}	};
+const CSet WHITE_SPACE =	{ .index = 0, .data = { 0x100002600, 0x0, 0x0, 0x0 }					};
+const CSet LINE_BREAK =		{ .index = 0, .data = { 0x2400, 0x0, 0x0, 0x0 }							};
 
 <*
 A compile time macro for creating a character set from a utf8 encoded string data
@@ -211,4 +138,82 @@ fn usz! CSet.to_format(&self, Formatter* formatter) @dynamic
 		self.data[2],
 		self.data[3],
   );
+}
+
+<*
+Compile time support module for unicode conversion
+*>
+module utf_utils;
+
+<*
+Support compile time macro.
+@return `the length in bytes for a utf8 codepoint`
+*>
+macro int get_utf32_codepoint_length(char $c) @const
+{
+	int $len;
+	$switch
+		$case !($c & 0x80):           $len = 1;
+		$case ($c & 0xE0) == 0xC0:    $len = 2;
+		$case ($c & 0xF0) == 0xE0:    $len = 3;
+		$case ($c & 0xF8) == 0xF0:    $len = 4;
+		$default:                     $len = -1;
+	$endswitch
+	return $len;
+}
+
+<*
+Support compile time macro.
+@return `The length of a utf8 string in utf32`
+*>
+macro usz get_utf32_len_from_utf8(String $source) @const
+{
+	usz $len = 0;
+	$for (var $i=0; $i < $source.len;)
+		var $curlen = get_utf32_codepoint_length ($source[$i]);
+		$i += $curlen;
+		$len++;
+	$endfor
+	return $len;
+}
+
+<*
+Compile time macro.
+@param $source `A utf8 string to convert into a Char32[] array`
+@return `A Char32[] array`
+*>
+macro conv_utf8_to_char32($source) @const
+{
+	Char32 $codepoint;
+	var $max = $source.len;
+
+	var $char32len = get_utf32_len_from_utf8 ($source);
+	var $chars = {};
+
+	$for (var $inx = 0; $inx < $max; )
+		var $c = $source[$inx];
+		var $len = get_utf32_codepoint_length($c);
+		$switch ($len)
+			$case 1: $codepoint = $c;
+			$case 2: $codepoint = $c & 0x1F;
+			$case 3: $codepoint = $c & 0x0F;
+			$case 4: $codepoint = $c & 0x07;
+			$default:
+				$error("Error, invalid utf8 character in string");
+				return;
+		$endswitch
+
+		$for (var $x = 1; $x < $len; ++$x)
+			$c = $source[$inx + $x];
+			$if ( ($c & 0xC0) != 0x80):
+				$error("Error, invalid utf8 character in string");
+				return;
+			$endif
+			$codepoint = ($codepoint << 6) | ($c & 0x3F);
+		$endfor
+
+		$chars = $chars +++ $codepoint;
+		$inx += $len;
+	$endfor
+	return $chars;
 }
